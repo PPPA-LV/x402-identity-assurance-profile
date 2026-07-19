@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/PPPA-LV/x402-identity-assurance-profile/schemas/assurance-extension.schema.json",
+  "$id": "https://raw.githubusercontent.com/PPPA-LV/x402-identity-assurance-profile/main/schemas/assurance-extension.schema.json",
   "title": "x402 Identity Assurance Extension",
   "type": "object",
   "additionalProperties": false,
@@ -13,16 +13,19 @@
     "acceptedCredentialTypes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "acceptedTrustFrameworks": {"type": "array", "items": {"type": "string", "format": "uri"}, "uniqueItems": true},
     "priceDisplay": {"type": "string"},
-    "invoiceMode": {"type": "string", "enum": ["per-call", "aggregate-monthly", "none"], "default": "none"}
+    "invoiceMode": {"type": "string", "enum": ["per-call", "aggregate-monthly", "none"], "default": "none"},
+    "assuranceFramework": {"type": "string", "format": "uri"},
+    "frameworkLevel": {"type": "string"}
   },
+  "dependentRequired": {"frameworkLevel": ["assuranceFramework"]},
   "allOf": [
     {
       "if": {"properties": {"legallySignificant": {"const": true}}, "required": ["legallySignificant"]},
-      "then": {"properties": {"minAssuranceLevel": {"enum": ["AL1", "AL2"]}}}
+      "then": {"required": ["minAssuranceLevel"], "properties": {"minAssuranceLevel": {"enum": ["AL1", "AL2"]}}}
     },
     {
       "if": {"properties": {"requiresIdentity": {"const": true}}, "required": ["requiresIdentity"]},
-      "then": {"properties": {"minAssuranceLevel": {"enum": ["AL1", "AL2"]}}}
+      "then": {"required": ["minAssuranceLevel"], "properties": {"minAssuranceLevel": {"enum": ["AL1", "AL2"]}}}
     }
   ]
 }

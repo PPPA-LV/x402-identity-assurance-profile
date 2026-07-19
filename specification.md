@@ -51,7 +51,7 @@ A protected resource or tool **MUST** declare an `x-assurance` object when ident
     "requiresMandate": false,
     "personalData": true,
     "legallySignificant": false,
-    "acceptedCredentialTypes": ["ExchangeParticipantCredential"],
+    "acceptedCredentialTypes": ["OrganisationIdentityCredential"],
     "acceptedTrustFrameworks": ["https://example.org/trust-framework"],
     "invoiceMode": "aggregate-monthly"
   }
@@ -71,6 +71,8 @@ A protected resource or tool **MUST** declare an `x-assurance` object when ident
 | `acceptedTrustFrameworks` | Trust frameworks accepted by the provider. |
 | `invoiceMode` | `per-call`, `aggregate-monthly`, or `none`. |
 | `priceDisplay` | Optional human-readable display value without protocol meaning. |
+| `assuranceFramework` | Optional URI of an external assurance framework (see 8.2). |
+| `frameworkLevel` | Optional level identifier within `assuranceFramework` (see 8.2). |
 
 A legally significant service **MUST NOT** use `AL0`.
 
@@ -97,19 +99,51 @@ The underlying service **MUST NOT** be invoked before all applicable checks and 
 
 ## 6. Response precedence
 
-| Condition | Response |
+The *condition* determines whether the request proceeds; §6.1 determines how
+much the response is permitted to say about why it did not.
+
+| Condition | Outcome |
 |---|---|
 | Service is free and policy is satisfied | Normal processing |
-| Credential, mandate or participant is revoked or suspended | `403 status_revoked` |
-| Required identity is absent | `403 identity_required` |
-| Assurance level is insufficient | `403 insufficient_assurance` |
-| Required mandate is absent or invalid | `403 mandate_required` |
-| Caller is otherwise not entitled | `403 access_denied` |
+| Credential, mandate or participant is revoked or suspended | Refused |
+| Required identity is absent | Refused |
+| Assurance level is insufficient | Refused |
+| Required mandate is absent or invalid | Refused |
+| Caller is otherwise not entitled | Refused |
 | Caller is eligible, payment is required and absent | `402` with x402 payment requirements |
 | Payment fails verification or settlement | `402` with payment error |
 | Policy and payment succeed | Normal processing |
 
+A refusal is `403`.
+
 A `403` response produced under this section **MUST NOT** disclose price, settlement asset, payee account, facilitator, payment network, or any other payment requirement.
+
+### 6.1 Error granularity
+
+A distinct error identifier per gate tells an unidentified caller which gate it
+failed, and therefore what to acquire in order to pass. Repeated across a
+catalogue it reveals which services exist, which are mandate-protected, and
+which callers are revoked rather than merely anonymous. That is the
+differential-error leakage §15 requires implementations to address, so this
+profile does not permit conformant behaviour to produce it.
+
+The rule is: **an identified caller may be told why; an unidentified caller may
+not.**
+
+| Caller state | Permitted refusal detail |
+|---|---|
+| Not identified, or identified below `AL1` | A single generic identifier: `access_denied`. The response **MUST NOT** distinguish absent identity from insufficient assurance, absent mandate, revoked status, or a service that does not exist. |
+| Identified at `AL1` or above | The specific identifier from §14 **MAY** be returned, because the caller has already established who it is and the disclosure is made to a known party. |
+
+A provider **MUST** record the specific reason in the audit record (§12)
+regardless of what it returns on the wire. Refusals remain diagnosable by the
+provider and, through a support channel, by the affected party; they are not
+diagnosable by an anonymous prober.
+
+A provider **MAY** return the specific identifier to an unidentified caller for
+a service it has explicitly published as having no confidential existence, price
+or policy. This is an opt-in for openly documented public services and
+**MUST NOT** be the default.
 
 ## 7. Discovery
 
@@ -122,6 +156,11 @@ A provider MAY publish a signed pricing document at:
 ```text
 /.well-known/x402-assurance.json
 ```
+
+This path is **provisional**. It is not registered in the IANA Well-Known URIs
+registry (RFC 8615) and is subject to change, including as a result of
+registration. A provider **SHOULD** also advertise the document's location
+alongside its service metadata, so that discovery does not depend on the path.
 
 The document SHOULD contain profile version, provider identifier, provider signing key reference, issuance and expiry timestamps, service declarations, x402 requirements, assurance requirements, and a signature or proof.
 
@@ -142,6 +181,42 @@ The provider **MUST** document how assurance levels are established.
 | `AL2` | Identity plus stronger authority, contractual, regulated or high-assurance evidence. |
 
 These levels are interoperability labels, not a replacement for a regulated assurance framework.
+
+### 8.2 Declaring an external framework
+
+The three baseline levels exist so that two parties with no shared regulator can
+still agree on a floor. They are deliberately coarse and are **not** a new
+assurance scheme.
+
+A provider operating under an established framework **SHOULD** declare it, so a
+caller can reason in the vocabulary it already holds evidence in:
+
+```json
+{
+  "x-assurance": {
+    "minAssuranceLevel": "AL2",
+    "assuranceFramework": "https://eur-lex.europa.eu/eli/reg/2014/910/oj",
+    "frameworkLevel": "high"
+  }
+}
+```
+
+`minAssuranceLevel` remains the interoperable floor. `assuranceFramework` and
+`frameworkLevel`, where present, are authoritative for callers that understand
+that framework; `minAssuranceLevel` governs for callers that do not.
+
+Non-normative correspondence, offered as a starting point rather than as an
+equivalence:
+
+| This profile | eIDAS assurance | NIST SP 800-63-3 | ISO/IEC 29115 |
+|---|---|---|---|
+| `AL0` | - | - | LoA 1 |
+| `AL1` | low / substantial | IAL1-IAL2 | LoA 2-3 |
+| `AL2` | high | IAL3 | LoA 4 |
+
+A provider **MUST NOT** present a mapping as conformity with the mapped
+framework. Mapping is a discovery convenience; conformity is determined by that
+framework's own authority.
 
 ## 9. Mandates
 
@@ -181,7 +256,18 @@ A provider SHOULD avoid revealing service existence, price or commercial terms t
 
 ## 14. Error model
 
-Recommended error identifiers:
+Identifiers are grouped by who may receive them (§6.1).
+
+Returnable to **any** caller:
+
+- `access_denied` - the generic refusal, carrying no indication of which gate failed
+- `payment_required`
+- `payment_verification_failed`
+- `payment_settlement_failed`
+- `payment_replayed`
+
+Returnable **only** to a caller identified at `AL1` or above, or for a service
+explicitly published as having no confidential existence, price or policy:
 
 - `identity_required`
 - `insufficient_assurance`
@@ -189,11 +275,10 @@ Recommended error identifiers:
 - `invalid_mandate`
 - `status_revoked`
 - `membership_suspended`
-- `access_denied`
-- `payment_required`
-- `payment_verification_failed`
-- `payment_settlement_failed`
-- `payment_replayed`
+
+The payment identifiers are unrestricted because a caller only reaches them
+after passing every policy gate, so they disclose nothing it was not already
+entitled to learn.
 
 Error descriptions SHOULD be understandable but MUST NOT disclose sensitive policy or payment details.
 

@@ -11,7 +11,7 @@
   "x-x402": {
     "scheme": "exact",
     "network": "eip155:84532",
-    "asset": "0x0000000000000000000000000000000000000000",
+    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     "maxAmountRequired": "500000",
     "payTo": "0x1111111111111111111111111111111111111111",
     "facilitator": "https://facilitator.example"
@@ -22,7 +22,7 @@
     "requiresMandate": false,
     "personalData": true,
     "legallySignificant": false,
-    "acceptedCredentialTypes": ["ExchangeParticipantCredential"],
+    "acceptedCredentialTypes": ["OrganisationIdentityCredential"],
     "acceptedTrustFrameworks": ["https://example.org/trust-framework"],
     "priceDisplay": "0.50 EUR",
     "invoiceMode": "aggregate-monthly"

@@ -44,6 +44,8 @@ This gives rise to the defining behaviour:
 - [`examples/pricing-document.json`](examples/pricing-document.json) — signed pricing document
 - [`conformance.md`](conformance.md) — conditional conformance suite
 - [`SECURITY.md`](SECURITY.md) — security reporting guidance
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to contribute, and the DCO sign-off requirement
+- [`MAINTAINERS.md`](MAINTAINERS.md) — who reviews changes
 
 ## Relationship to x402
 
@@ -58,19 +60,33 @@ This profile does not modify x402. The x402 payment requirement remains the sett
 - Settlement rails remain pluggable.
 - Prices are discoverable before invocation.
 - Every paid or refused call is auditable.
+- A refusal tells an identified caller why, and tells an anonymous caller nothing.
 
 ## Implementation status
 
 This is an experimental interoperability profile. Implementations should not claim conformance until they pass the conformance suite.
 
-A reference implementation is being developed in the AI LV Exchange Node Starter Kit.
+**No implementation currently conforms.** The AI LV Exchange Node Starter Kit
+implements the same identity-before-payment rule and is the intended first
+reference implementation, but it does not yet emit the `x-assurance` extension
+or publish `/.well-known/x402-assurance.json`, so it does not pass this suite
+today. That work is tracked separately and this statement will change only when
+a conformance report exists.
 
 ## Governance
 
-The profile is maintained as an open PPPA initiative. Substantive changes should be proposed through GitHub issues and pull requests.
+The profile is maintained as an open initiative of the Public-Private Partnership
+Association of Latvia (PPPA). Cyberfort SIA is the legal entity contributing the
+work. Substantive changes should be proposed through GitHub issues and pull
+requests; see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+Every commit must carry a [Developer Certificate of Origin](DCO) sign-off
+(`git commit -s`). There is no Contributor Licence Agreement.
 
 ## Licence
 
-Specification text and documentation: CC BY 4.0.
+- Specification text and documentation: **CC BY 4.0** ([`LICENSE-SPECIFICATION`](LICENSE-SPECIFICATION))
+- Schemas, examples and code: **Apache License 2.0** ([`LICENSE`](LICENSE))
 
-Schemas, examples and reference code: MIT.
+Apache-2.0 is used for code because it grants patent rights expressly, and
+because it matches the licensing of the x402 project this profile extends.

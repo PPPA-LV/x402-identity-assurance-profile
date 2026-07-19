@@ -10,10 +10,10 @@
       "endpoint": "https://mcp.example.org/public",
       "payment": {
         "scheme": "exact",
-        "network": "test-network",
-        "asset": "test-asset",
+        "network": "eip155:84532",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         "maxAmountRequired": "500000",
-        "payTo": "example-payee",
+        "payTo": "0x1111111111111111111111111111111111111111",
         "facilitator": "https://facilitator.example"
       },
       "assurance": {
@@ -27,8 +27,11 @@
     }
   ],
   "proof": {
-    "type": "ExampleProof",
+    "type": "DataIntegrityProof",
+    "cryptosuite": "eddsa-jcs-2022",
+    "created": "2026-07-19T00:00:00Z",
     "verificationMethod": "did:web:mcp.example.org#node-key",
-    "proofValue": "example-only"
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z<base58-encoded-signature>"
   }
 }
