@@ -31,7 +31,7 @@ There is no separate Contributor Licence Agreement.
 By contributing you agree that your contribution is licensed under:
 
 - **Apache License 2.0** — schemas, examples, code (`LICENSE`)
-- **CC BY 4.0** — specification and documentation text (`LICENSE-SPECIFICATION`)
+- **CC BY 4.0** — specification and documentation text (`LICENSES/CC-BY-4.0.txt`)
 
 Apache-2.0 is used for code because it grants patent rights expressly, and
 because it matches the licensing of the x402 project this profile extends.

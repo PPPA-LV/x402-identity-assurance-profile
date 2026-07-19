@@ -85,7 +85,7 @@ Every commit must carry a [Developer Certificate of Origin](DCO) sign-off
 
 ## Licence
 
-- Specification text and documentation: **CC BY 4.0** ([`LICENSE-SPECIFICATION`](LICENSE-SPECIFICATION))
+- Specification text and documentation: **CC BY 4.0** ([`LICENSES/CC-BY-4.0.txt`](LICENSES/CC-BY-4.0.txt))
 - Schemas, examples and code: **Apache License 2.0** ([`LICENSE`](LICENSE))
 
 Apache-2.0 is used for code because it grants patent rights expressly, and
