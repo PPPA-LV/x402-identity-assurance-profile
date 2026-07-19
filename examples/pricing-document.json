@@ -1,0 +1,34 @@
+{
+  "profile": "https://github.com/PPPA-LV/x402-identity-assurance-profile",
+  "profileVersion": "0.1",
+  "provider": "did:web:mcp.example.org",
+  "issuedAt": "2026-07-19T00:00:00Z",
+  "expiresAt": "2026-07-20T00:00:00Z",
+  "services": [
+    {
+      "id": "company_officers",
+      "endpoint": "https://mcp.example.org/public",
+      "payment": {
+        "scheme": "exact",
+        "network": "test-network",
+        "asset": "test-asset",
+        "maxAmountRequired": "500000",
+        "payTo": "example-payee",
+        "facilitator": "https://facilitator.example"
+      },
+      "assurance": {
+        "minAssuranceLevel": "AL1",
+        "requiresIdentity": true,
+        "requiresMandate": false,
+        "personalData": true,
+        "priceDisplay": "0.50 EUR",
+        "invoiceMode": "aggregate-monthly"
+      }
+    }
+  ],
+  "proof": {
+    "type": "ExampleProof",
+    "verificationMethod": "did:web:mcp.example.org#node-key",
+    "proofValue": "example-only"
+  }
+}
